@@ -8,7 +8,7 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-    "camau",  # routing
+    "camau>=1.1.0",  # routing
     "fastapi",  # api
     "fastapi[standard]",
     "uvicorn",  # run api locally

@@ -44,13 +44,13 @@ wheels = [
 
 [[package]]
 name = "camau"
-version = "1.0.0"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c9/c5/a7b9869d7cf80aca43515ccafa5876f8f21c749b5f3a2eee8619c2cb94b7/camau-1.0.0.tar.gz", hash = "sha256:4baf3036e89b3efd30eff16a6d7271c611123b99dfbcf190ea8a4958f1fed622", size = 48639, upload-time = "2026-09-11T17:31:13.582Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a6/f8/035181df53b1e6430631833cf04be1b4902371f9d2b5fd9efd9f810d79b9/camau-1.1.0.tar.gz", hash = "sha256:465270e6e6f319360d9ac88a543020886e0abe290d9b2e060cd539ac49217aef", size = 49445, upload-time = "2026-09-13T21:48:21.575Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/5e/770a868fa378e1b9cc47c923d5ef2b3dfefa36aa27bc8ce84f3ae561c7e7/camau-1.0.0-cp311-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:414bef4e65896a0f73be256820cde7fcfbbfc7b0baaf197244fa65783700ab81", size = 572743, upload-time = "2026-09-11T17:31:11.081Z" },
-    { url = "https://files.pythonhosted.org/packages/b2/25/1ecf976ecf33274609f043d1516c9d024ec1b90d59590645b53cd82a7544/camau-1.0.0-cp311-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:f7c33ec28483bbf1d2a8a38b74292a7d31732a0caad2b6279a0c5660bd675af6", size = 615390, upload-time = "2026-09-11T17:31:09.861Z" },
-    { url = "https://files.pythonhosted.org/packages/6e/3c/15e5fc747f02468b8e646aa41b61b695e0e48747d94694191e97ed8debad/camau-1.0.0-cp311-abi3-win_amd64.whl", hash = "sha256:3fbad28056cf249bbaf618490924af45454837714190f420ea3ac294f7646d34", size = 549165, upload-time = "2026-09-11T17:31:12.482Z" },
+    { url = "https://files.pythonhosted.org/packages/04/30/d07a94d3ced35b45ecd5a7c70a9ea0b2e187e3ffa84da6f55235de137357/camau-1.1.0-cp311-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:07162cb5acfab9d8fda9c4b42d9c3245f9dc6c67471e1b5012452428961b21d7", size = 573962, upload-time = "2026-09-13T21:48:18.511Z" },
+    { url = "https://files.pythonhosted.org/packages/66/9d/51fbe5f16b0f28d1518fb14c4d21a509eea3863c213505a6f7800806b201/camau-1.1.0-cp311-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:ec3bbc6412a3977953a30a26895619e9ad52779c59f66da5187889f6c1d76dd6", size = 616586, upload-time = "2026-09-13T21:48:16.54Z" },
+    { url = "https://files.pythonhosted.org/packages/63/13/03cf60947c9e63260431ad359f076cd41b54c4d252b14ee8e6abce532fc6/camau-1.1.0-cp311-abi3-win_amd64.whl", hash = "sha256:ff50cf8492d16676a8b56648f5ec81ec3930ab6982d09bbcd6b9f5f750997945", size = 550342, upload-time = "2026-09-13T21:48:20.206Z" },
 ]
 
 [[package]]
@@ -431,7 +431,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "camau" },
+    { name = "camau", specifier = ">=1.1.0" },
     { name = "fastapi" },
     { name = "fastapi", extras = ["standard"] },
     { name = "pydantic" },
