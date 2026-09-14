@@ -37,7 +37,7 @@ def require_route(func):
     return sync_wrapper
 
 
-@specified_router.post("/{route}/route", tags=["specified"])
+@specified_router.post("/route/{route}", tags=["specified"])
 @require_route
 async def route(
     route: str,
@@ -47,14 +47,14 @@ async def route(
     return await manager[route].run(body)
 
 
-@specified_router.get("/{route}/info", tags=["specified", "info"])
+@specified_router.get("/route/{route}/info", tags=["specified", "info"])
 @require_route
 def info(route: str):
     """Full config for the specified route."""
     return {"route": route, "info": manager.info(route)}
 
 
-@specified_router.get("/{route}/readyz", tags=["specified", "health"])
+@specified_router.get("/route/{route}/readyz", tags=["specified", "health"])
 @require_route
 async def readyz(route: str):
     """Checks status of all tasks in the provided route."""
