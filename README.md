@@ -21,13 +21,11 @@ currently implemented:
 - global info
 - global health
 - fake global ready
-- dummied routing endpoint
+- routing endpoint
 - route loader / camau wrapper looks like its mostly done to me tbh...
 
 up next we need:
-- undummy the routing endpoint
-- find a way to map routing endpoints per config as part of init, such that they all get visibly rendered on screen different
-- add scaffold things like otel etc...
+- structured errors
 - write second docker container for wrapping the config
 - write pipeline for deploying core behaviour to dockerhub
 - write helm for config files

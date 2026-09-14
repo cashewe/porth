@@ -20,7 +20,7 @@ class Routes(Loader):
             self.loaded[file.parent.name] = route_data
 
     def info(self):
-        return list(self.loaded.keys())
+        return list(self.loaded)
 
 
 routes = Routes()
