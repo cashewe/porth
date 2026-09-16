@@ -1,7 +1,11 @@
 from camau import Router
+import structlog
 
 from .route_loader import routes
 from .task_loader import tasks
+
+
+logger = structlog.get_logger(__name__)
 
 
 class ConfigManager:
@@ -12,6 +16,7 @@ class ConfigManager:
 
     def load(self):
         for route, config in self._routes.items():
+            logger.debug(f"initialising router object for {route}...")
             tasks = self._tasks.get(route)
             self.configs[route] = Router(config, tasks)
 
