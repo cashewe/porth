@@ -47,6 +47,16 @@ async def route(
     return await manager[route].run(body)
 
 
+@specified_router.post("/rotue/{route}/explain", tags=["specified", "info"])
+@require_route
+async def explain(
+    route: str,
+    body: dict | None = None,
+):
+    """Explain to the user why their message went a certain way."""
+    return await manager[route].explain(body)
+
+
 @specified_router.get("/route/{route}/info", tags=["specified", "info"])
 @require_route
 def info(route: str):
