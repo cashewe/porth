@@ -1,0 +1,9 @@
+services:
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.21.0
+    container_name: porth-jaeger
+    environment:
+      OTEL_TRACES_SAMPLER: always_off
+    ports:
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:16686:16686"

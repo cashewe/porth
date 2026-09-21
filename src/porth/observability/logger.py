@@ -1,7 +1,6 @@
-# needs correlation id, and otel span ids
-import logging  # noqa: F401 # structlog examples import this unused?
-
 import structlog
+
+from .context import add_observability_context
 
 
 def configure_logging():
@@ -9,6 +8,7 @@ def configure_logging():
     structlog.configure(
         processors=[
             structlog.contextvars.merge_contextvars,
+            add_observability_context,
             structlog.processors.add_log_level,
             structlog.processors.TimeStamper(fmt="iso", utc=True),
             structlog.processors.JSONRenderer(),

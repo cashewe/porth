@@ -5,7 +5,6 @@ import structlog
 
 from ._loader import Loader
 
-
 logger = structlog.get_logger(__name__)
 
 

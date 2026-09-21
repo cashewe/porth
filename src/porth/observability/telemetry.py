@@ -26,16 +26,17 @@ class TelemetryProviders:
     meter: MeterProvider
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """instrument and manage shutdown for application."""
-    providers = configure_telemetry()
-    instrument_app(app, providers)
+def telemetry_lifespan(providers: TelemetryProviders):
+    """Create a lifespan handler that shuts down telemetry providers."""
 
-    yield
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI):
+        yield
 
-    providers.tracer.shutdown()
-    providers.meter.shutdown()
+        providers.tracer.shutdown()
+        providers.meter.shutdown()
+
+    return lifespan
 
 
 def configure_telemetry() -> TelemetryProviders:
@@ -57,9 +58,18 @@ def configure_telemetry() -> TelemetryProviders:
 
     trace.set_tracer_provider(tracer_provider)
 
-    metric_reader = PeriodicExportingMetricReader(OTLPMetricExporter())
+    metric_readers = []
+    metrics_endpoint = os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT")
+    if metrics_endpoint:
+        metric_readers.append(
+            PeriodicExportingMetricReader(
+                OTLPMetricExporter(endpoint=metrics_endpoint)
+            )
+        )
+
     meter_provider = MeterProvider(
-        resource=app_resource, metric_readers=[metric_reader]
+        resource=app_resource,
+        metric_readers=metric_readers,
     )
 
     metrics.set_meter_provider(meter_provider)
@@ -67,7 +77,7 @@ def configure_telemetry() -> TelemetryProviders:
     return TelemetryProviders(tracer=tracer_provider, meter=meter_provider)
 
 
-def instrument_app(app, providers: TelemetryProviders) -> None:
+def instrument_app(app: FastAPI, providers: TelemetryProviders) -> None:
     """Instrument the FastAPI app with OpenTelemetry."""
     FastAPIInstrumentor.instrument_app(
         app,

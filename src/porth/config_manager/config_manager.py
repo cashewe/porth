@@ -1,9 +1,8 @@
-from camau import Router
 import structlog
+from camau import Router
 
 from .route_loader import routes
 from .task_loader import tasks
-
 
 logger = structlog.get_logger(__name__)
 
