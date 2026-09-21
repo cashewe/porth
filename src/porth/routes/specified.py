@@ -43,14 +43,14 @@ ValidRoute = Enum(
     "ValidRoute",
     {name: name for name in manager.keys()},  # noqa: SIM118  # this is not a SIM issue, syntax is misleading
     type=str,
-)
+) # this allows swagger to list valid route names to users.
 
 
 @specified_router.post("/route/{route}", tags=["specified", "mcp"])
 @require_route
 async def route(
     route: ValidRoute,
-    body: dict | None = None,  # not possible to validate this
+    body: dict | None = None,  # is it possible to inject pydantic here?
 ):
     """Send the body through the specified route."""
     schema = manager.schemas.get(route)
