@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://porth.example/schemas/example-2.json",
+  "title": "Risk routing request",
+  "description": "Input accepted by the example-2 channel and risk routing workflow.",
+  "type": "object",
+  "required": ["request", "customer", "transaction"],
+  "properties": {
+    "request": {
+      "type": "object",
+      "required": ["id", "channel"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "channel": {"type": "string", "enum": ["api", "batch"]}
+      },
+      "additionalProperties": false
+    },
+    "customer": {
+      "type": "object",
+      "required": ["id", "country", "account-age-days"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+        "account-age-days": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "transaction": {
+      "type": "object",
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {"type": "number", "exclusiveMinimum": 0},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

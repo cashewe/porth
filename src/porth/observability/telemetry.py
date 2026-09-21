@@ -62,9 +62,7 @@ def configure_telemetry() -> TelemetryProviders:
     metrics_endpoint = os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT")
     if metrics_endpoint:
         metric_readers.append(
-            PeriodicExportingMetricReader(
-                OTLPMetricExporter(endpoint=metrics_endpoint)
-            )
+            PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=metrics_endpoint))
         )
 
     meter_provider = MeterProvider(

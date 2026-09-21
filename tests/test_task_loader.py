@@ -28,9 +28,11 @@ def test_tasks_default_root_loads_repo_example_directories():
     assert set(tasks.loaded["example-2"]) == {
         "stable-predictor",
         "candidate-predictor",
+        "batch-predictor",
         "fraud-checker",
         "policy-checker",
         "risk-scorer",
+        "risk-aggregator",
         "review-queue",
         "approval-service",
     }

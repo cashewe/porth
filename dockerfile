@@ -8,4 +8,4 @@ COPY src ./src
 
 RUN uv sync --frozen
 
-CMD ["/app/.venv/bin/fastapi", "run", "src/porth/app.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["/app/.venv/bin/fastapi", "run", "src/porth/api.py", "--host", "0.0.0.0", "--port", "8000"]

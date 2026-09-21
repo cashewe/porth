@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 
+from .mcp import generate_mcp_tools
 from .middleware import (
     CorrelationIdMiddleware,
     LoggingMiddleware,
@@ -26,3 +27,4 @@ app.add_middleware(CorrelationIdMiddleware)
 app.include_router(core_router)
 app.include_router(specified_router)
 instrument_app(app, telemetry_providers)
+generate_mcp_tools(app)

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://porth.example/schemas/example-1.json",
+  "title": "Transaction checks request",
+  "description": "Input accepted by the example-1 fraud and policy checks.",
+  "type": "object",
+  "required": ["transaction", "customer"],
+  "properties": {
+    "transaction": {
+      "type": "object",
+      "required": ["id", "amount", "currency"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "amount": {"type": "number", "exclusiveMinimum": 0},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"}
+      },
+      "additionalProperties": false
+    },
+    "customer": {
+      "type": "object",
+      "required": ["id", "country", "account-age-days"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+        "account-age-days": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

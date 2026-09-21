@@ -17,16 +17,11 @@ ok so:
 nice to haves:
 - fast mcp option
 
-currently implemented:
-- global info
-- global health
-- fake global ready
-- routing endpoint
-- route loader / camau wrapper looks like its mostly done to me tbh...
-- logging / 'error handling' (lol @ people who hoped their errors would be constructively handled...)
-
 up next we need:
 - write second docker container for wrapping the config
+- write some metrics
+- write versioning system
+- add config singleton to core codebase
 - write pipeline for deploying core behaviour to dockerhub
 - write helm for config files
 - write template you can use for cloning the routes bit into your own repo for fast setup

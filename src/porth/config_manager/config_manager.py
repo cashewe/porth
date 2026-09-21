@@ -2,6 +2,7 @@ import structlog
 from camau import Router
 
 from .route_loader import routes
+from .schema_loader import schemas
 from .task_loader import tasks
 
 logger = structlog.get_logger(__name__)
@@ -11,6 +12,7 @@ class ConfigManager:
     def __init__(self):
         self._routes = routes
         self._tasks = tasks
+        self.schemas = schemas  # we will validate against this if provided only.
         self.configs = {}
 
     def load(self):
@@ -22,10 +24,17 @@ class ConfigManager:
     def info(self, route: str | None = None):
         if route is None:
             return [
-                {"route": route_name, "tasks": list(tasks)}
+                {
+                    "route": route_name,
+                    "tasks": list(tasks),
+                    "schema": self.schemas.get(route_name),
+                }
                 for route_name, tasks in self._tasks.items()
             ]
         return self._routes[route]
+
+    def keys(self):
+        return self.configs.keys()
 
     def __len__(self):
         return len(self.configs)

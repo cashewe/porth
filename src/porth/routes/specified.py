@@ -1,8 +1,10 @@
 import inspect
+from enum import Enum
 from functools import wraps
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from jsonschema import validate
 
 from ..config_manager import manager
 
@@ -37,36 +39,51 @@ def require_route(func):
     return sync_wrapper
 
 
-@specified_router.post("/route/{route}", tags=["specified"])
+ValidRoute = Enum(
+    "ValidRoute",
+    {name: name for name in manager.keys()},  # noqa: SIM118  # this is not a SIM issue, syntax is misleading
+    type=str,
+)
+
+
+@specified_router.post("/route/{route}", tags=["specified", "mcp"])
 @require_route
 async def route(
-    route: str,
+    route: ValidRoute,
     body: dict | None = None,  # not possible to validate this
 ):
     """Send the body through the specified route."""
+    schema = manager.schemas.get(route)
+    if schema:
+        validate(body, schema)
+
     return await manager[route].run(body)
 
 
-@specified_router.post("/rotue/{route}/explain", tags=["specified", "info"])
+@specified_router.post("/rotue/{route}/explain", tags=["specified", "info", "mcp"])
 @require_route
 async def explain(
-    route: str,
+    route: ValidRoute,
     body: dict | None = None,
 ):
     """Explain to the user why their message went a certain way."""
+    schema = manager.schemas.get(route)
+    if schema:
+        validate(body, schema)
+
     return await manager[route].explain(body)
 
 
-@specified_router.get("/route/{route}/info", tags=["specified", "info"])
+@specified_router.get("/route/{route}/info", tags=["specified", "info", "mcp"])
 @require_route
-def info(route: str):
+def info(route: ValidRoute):
     """Full config for the specified route."""
     return {"route": route, "info": manager.info(route)}
 
 
 @specified_router.get("/route/{route}/readyz", tags=["specified", "health"])
 @require_route
-async def readyz(route: str):
+async def readyz(route: ValidRoute):
     """Checks status of all tasks in the provided route."""
     results = await manager[route].healthcheck()
     status_code = 200 if all(results) else 503

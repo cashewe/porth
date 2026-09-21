@@ -21,6 +21,8 @@ dependencies = [
     "opentelemetry-exporter-otlp-proto-grpc>=1.44.0",
     "structlog>=26.1.0",
     "starlette>=1.6.0",
+    "jsonschema>=4.26.0",
+    "fastmcp>=4.0.5",
 ]
 
 [dependency-groups]

@@ -10,7 +10,7 @@ test:
 	uv run pytest .
 
 run:
-	uv run fastapi dev src/porth/app.py --reload
+	uv run fastapi dev src/porth/api.py --reload
 
 observability-up:
 	docker compose up -d jaeger

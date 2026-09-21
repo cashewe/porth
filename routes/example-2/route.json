@@ -8,7 +8,11 @@
       "mappings": [
         {"target": "/request-id", "path-to-source": "/request/id", "type": "string"},
         {"target": "/channel", "path-to-source": "/request/channel", "type": "string"},
-        {"target": "/customer", "path-to-source": "/customer", "type": "object"}
+        {"target": "/customer-id", "path-to-source": "/customer/id", "type": "string"},
+        {"target": "/country", "path-to-source": "/customer/country", "type": "string"},
+        {"target": "/account-age-days", "path-to-source": "/customer/account-age-days", "type": "integer"},
+        {"target": "/amount", "path-to-source": "/transaction/amount", "type": "number"},
+        {"target": "/currency", "path-to-source": "/transaction/currency", "type": "string"}
       ],
       "next": "route-channel"
     },
@@ -18,7 +22,7 @@
       "select": "/channel",
       "cases": [
         {"operator": "eq", "value": "api", "target": "select-model"},
-        {"operator": "eq", "value": "batch", "target": "run-checks"},
+        {"operator": "eq", "value": "batch", "target": "batch-model"},
         {"operator": "otherwise", "target": "unsupported-channel"}
       ]
     },
@@ -32,6 +36,7 @@
     },
     {"id": "stable-model", "type": "task", "task": "stable-predictor", "next": "run-checks"},
     {"id": "candidate-model", "type": "task", "task": "candidate-predictor", "next": "run-checks"},
+    {"id": "batch-model", "type": "task", "task": "batch-predictor", "next": "run-checks"},
     {
       "id": "run-checks",
       "type": "fan-out",
@@ -41,32 +46,24 @@
         {"id": "model-signal", "target": "score-request"}
       ]
     },
-    {"id": "fraud-check", "type": "task", "task": "fraud-checker", "next": "format-fraud"},
-    {
-      "id": "format-fraud",
-      "type": "map-schema",
-      "mappings": [
-        {"target": "/risk", "path-to-source": "/risk-score", "type": "number"},
-        {"target": "/provider", "default": "fraud-service", "type": "string"}
-      ],
-      "next": "combine-signals"
-    },
+    {"id": "fraud-check", "type": "task", "task": "fraud-checker", "next": "combine-signals"},
     {"id": "policy-check", "type": "task", "task": "policy-checker", "next": "combine-signals"},
     {"id": "score-request", "type": "task", "task": "risk-scorer", "next": "combine-signals"},
     {
       "id": "combine-signals",
       "type": "converge",
       "inputs": {
-        "fraud-signal": "format-fraud",
+        "fraud-signal": "fraud-check",
         "policy-signal": "policy-check",
         "model-signal": "score-request"
       },
-      "next": "route-risk"
+      "next": "aggregate-risk"
     },
+    {"id": "aggregate-risk", "type": "task", "task": "risk-aggregator", "next": "route-risk"},
     {
       "id": "route-risk",
       "type": "deterministic-gate",
-      "select": "/fraud-signal/risk",
+      "select": "/risk-score",
       "cases": [
         {"operator": "gt", "value": 0.8, "target": "risk-rejected"},
         {"operator": "in_range", "lower": 0.4, "upper": 0.8, "target": "manual-review"},
@@ -81,10 +78,12 @@
       "mappings": [
         {"target": "/request-id", "path-to-source": "/request-id", "type": "string"},
         {"target": "/decision", "path-to-source": "/decision", "type": "string"},
-        {"target": "/reviewed", "path-to-source": "/reviewed", "default": false, "type": "boolean"}
+        {"target": "/reviewed", "path-to-source": "/reviewed", "type": "boolean"},
+        {"target": "/model", "path-to-source": "/model", "type": "string"},
+        {"target": "/risk-score", "path-to-source": "/risk-score", "type": "number"}
       ]
     },
     {"id": "unsupported-channel", "type": "raise-error", "message": "The request channel is not supported"},
-    {"id": "risk-rejected", "type": "raise-error", "message": "The fraud risk exceeds the gateway threshold"}
+    {"id": "risk-rejected", "type": "raise-error", "message": "The aggregate risk exceeds the gateway threshold"}
   ]
 }
