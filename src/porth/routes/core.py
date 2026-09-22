@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from ..config_manager import manager
+from ..settings import settings
 
 core_router = APIRouter()
 
@@ -23,7 +24,7 @@ def readyz():
 def info():
     """Get app level information, including discovered routes."""
     return {
-        "name": "My App",
-        "version": "1.0.0",
+        "name": settings.service_name,
+        "version": settings.service_version,
         "loaded": manager.info(),
     }

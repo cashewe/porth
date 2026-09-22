@@ -23,6 +23,7 @@ dependencies = [
     "starlette>=1.6.0",
     "jsonschema>=4.26.0",
     "fastmcp>=4.0.5",
+    "pydantic-settings>=2.15.0",
 ]
 
 [dependency-groups]

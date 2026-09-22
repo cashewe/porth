@@ -43,7 +43,7 @@ ValidRoute = Enum(
     "ValidRoute",
     {name: name for name in manager.keys()},  # noqa: SIM118  # this is not a SIM issue, syntax is misleading
     type=str,
-) # this allows swagger to list valid route names to users.
+)  # this allows swagger to list valid route names to users.
 
 
 @specified_router.post("/route/{route}", tags=["specified", "mcp"])
@@ -60,7 +60,7 @@ async def route(
     return await manager[route].run(body)
 
 
-@specified_router.post("/rotue/{route}/explain", tags=["specified", "info", "mcp"])
+@specified_router.post("/route/{route}/explain", tags=["specified", "info", "mcp"])
 @require_route
 async def explain(
     route: ValidRoute,

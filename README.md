@@ -20,9 +20,8 @@ nice to haves:
 up next we need:
 - write second docker container for wrapping the config
 - write some metrics
-- fix the fastmcp solution so its actually an established app in the lifetime of the fastapi app
-- write versioning system
-- add config singleton to core codebase
+- *write versioning system*
+- *add config singleton to core codebase*
 - write pipeline for deploying core behaviour to dockerhub
 - write helm for config files
 - write template you can use for cloning the routes bit into your own repo for fast setup

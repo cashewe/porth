@@ -20,3 +20,6 @@ observability-down:
 
 observability-logs:
 	docker compose logs -f jaeger
+
+mcp-inspect:
+	npx.cmd --yes @modelcontextprotocol/inspector --web --server-url http://127.0.0.1:8000/mcp/ --transport http

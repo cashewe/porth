@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 
@@ -18,6 +17,8 @@ from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+from ..settings import settings
 
 
 @dataclass
@@ -43,26 +44,40 @@ def configure_telemetry() -> TelemetryProviders:
     """Configure OTEL for the application."""
     app_resource = Resource.create(
         {
-            "service.name": os.getenv("SERVICE_NAME") or "porth",
-            "service.version": os.getenv("SERVICE_VERSION") or "0.1.0",
-            "deployment.environment.name": os.getenv("ENVIRONMENT") or "local",
-            "service.instance.id": os.getenv(
-                "OTEL_SERVICE_INSTANCE_ID", "local-instance"
-            ),
+            "service.name": settings.service_name,
+            "service.version": settings.service_version,
+            "deployment.environment.name": settings.environment,
+            "service.instance.id": settings.otel_service_instance_id,
         }
     )
     tracer_provider = TracerProvider(resource=app_resource)
 
-    span_processor = BatchSpanProcessor(OTLPSpanExporter())
+    traces_endpoint = (
+        settings.otel_exporter_otlp_traces_endpoint
+        or settings.otel_exporter_otlp_endpoint
+    )
+    traces_headers = (
+        settings.otel_exporter_otlp_traces_headers
+        or settings.otel_exporter_otlp_headers
+    )
+    span_processor = BatchSpanProcessor(
+        OTLPSpanExporter(endpoint=traces_endpoint, headers=traces_headers)
+    )
     tracer_provider.add_span_processor(span_processor)
 
     trace.set_tracer_provider(tracer_provider)
 
     metric_readers = []
-    metrics_endpoint = os.getenv("OTEL_EXPORTER_OTLP_METRICS_ENDPOINT")
+    metrics_endpoint = settings.otel_exporter_otlp_metrics_endpoint
     if metrics_endpoint:
+        metrics_headers = (
+            settings.otel_exporter_otlp_metrics_headers
+            or settings.otel_exporter_otlp_headers
+        )
         metric_readers.append(
-            PeriodicExportingMetricReader(OTLPMetricExporter(endpoint=metrics_endpoint))
+            PeriodicExportingMetricReader(
+                OTLPMetricExporter(endpoint=metrics_endpoint, headers=metrics_headers)
+            )
         )
 
     meter_provider = MeterProvider(
