@@ -87,6 +87,7 @@ def test_unhandled_error_response_includes_correlation_id() -> None:
 
     assert response.status_code == 500
     assert response.headers[HEADER] == correlation_id
+    assert response.json() == {"message": "Internal error occurred."}
 
 
 def test_request_logs_share_the_correlation_id(capsys) -> None:

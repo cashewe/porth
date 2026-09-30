@@ -11,6 +11,7 @@ from ..observability.context import (
     reset_correlation_id,
     set_correlation_id,
 )
+from .error_handling import ErrorResponse
 
 CORRELATION_HEADER = "X-Correlation-ID"
 CORRELATION_ATTRIBUTE = "porth.correlation_id"
@@ -88,7 +89,7 @@ class CorrelationIdMiddleware:
         try:
             if validation_error is not None:
                 response = JSONResponse(
-                    {"message": validation_error},
+                    ErrorResponse(message=validation_error).model_dump(),
                     status_code=400,
                 )
                 await response(scope, receive, send_with_correlation_id)

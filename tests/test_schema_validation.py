@@ -12,6 +12,7 @@ from jsonschema.exceptions import ValidationError
 from porth.config_manager import manager
 from porth.config_manager.schema_loader import Schemas
 from porth.config_manager.task_loader import tasks
+from porth.config_manager.version_handler import RouteKey
 from porth.routes.specified import explain, route
 
 ROUTES_DIRECTORY = Path(__file__).resolve().parents[1] / "routes"
@@ -65,39 +66,52 @@ REQUIRED_PATHS = {
     ],
 }
 
+CONFIGURED_ROUTE_KEYS = [
+    RouteKey("example-1", 1),
+    RouteKey("example-1", 2),
+    RouteKey("example-2", 1),
+]
 
-def load_route_file(route_name: str, filename: str) -> JsonObject:
-    route_file = ROUTES_DIRECTORY / route_name / filename
+
+def load_route_file(
+    route_name: str,
+    filename: str,
+    version: int | None = None,
+) -> JsonObject:
+    key = manager.resolve(route_name, version)
+    route_directory = ROUTES_DIRECTORY / route_name
+    explicit_directory = route_directory / f"v{key.major}"
+    if explicit_directory.exists():
+        route_directory = explicit_directory
+    route_file = route_directory / filename
     return json.loads(route_file.read_text(encoding="utf-8"))
 
 
-@pytest.mark.parametrize("route_name", VALID_REQUESTS)
-def test_example_schema_is_valid_json_schema(route_name: str) -> None:
-    Draft202012Validator.check_schema(load_route_file(route_name, "schema.json"))
+@pytest.mark.parametrize("key", CONFIGURED_ROUTE_KEYS)
+def test_example_schema_is_valid_json_schema(key: RouteKey) -> None:
+    Draft202012Validator.check_schema(
+        load_route_file(key.name, "schema.json", key.major)
+    )
 
 
-@pytest.mark.parametrize("route_name,payload", VALID_REQUESTS.items())
-def test_example_schema_accepts_complete_request(
-    route_name: str, payload: dict
-) -> None:
-    validator = Draft202012Validator(load_route_file(route_name, "schema.json"))
+@pytest.mark.parametrize("key", CONFIGURED_ROUTE_KEYS)
+def test_example_schema_accepts_complete_request(key: RouteKey) -> None:
+    validator = Draft202012Validator(
+        load_route_file(key.name, "schema.json", key.major)
+    )
 
-    validator.validate(payload)
+    validator.validate(VALID_REQUESTS[key.name])
 
 
 @pytest.mark.parametrize(
-    ("route_name", "missing_path"),
-    [
-        (route_name, path)
-        for route_name, paths in REQUIRED_PATHS.items()
-        for path in paths
-    ],
+    ("key", "missing_path"),
+    [(key, path) for key in CONFIGURED_ROUTE_KEYS for path in REQUIRED_PATHS[key.name]],
 )
 def test_example_schema_rejects_request_missing_required_field(
-    route_name: str,
+    key: RouteKey,
     missing_path: tuple[str, ...],
 ) -> None:
-    payload = deepcopy(VALID_REQUESTS[route_name])
+    payload = deepcopy(VALID_REQUESTS[key.name])
     containing_object: JsonObject = payload
     for segment in missing_path[:-1]:
         nested_object = containing_object[segment]
@@ -105,22 +119,24 @@ def test_example_schema_rejects_request_missing_required_field(
         containing_object = nested_object
     del containing_object[missing_path[-1]]
 
-    validator = Draft202012Validator(load_route_file(route_name, "schema.json"))
+    validator = Draft202012Validator(
+        load_route_file(key.name, "schema.json", key.major)
+    )
 
     with pytest.raises(ValidationError):
         validator.validate(payload)
 
 
-@pytest.mark.parametrize("route_name", VALID_REQUESTS)
-def test_route_configuration_passes_camau_assessment(route_name: str) -> None:
-    assessment = Assessor.assess(load_route_file(route_name, "route.json"))
+@pytest.mark.parametrize("key", CONFIGURED_ROUTE_KEYS)
+def test_route_configuration_passes_camau_assessment(key: RouteKey) -> None:
+    assessment = Assessor.assess(load_route_file(key.name, "route.json", key.major))
 
     assert assessment.valid, assessment.to_text()
 
 
-@pytest.mark.parametrize("route_name", VALID_REQUESTS)
-def test_every_configured_task_is_registered(route_name: str) -> None:
-    configuration = load_route_file(route_name, "route.json")
+@pytest.mark.parametrize("key", CONFIGURED_ROUTE_KEYS)
+def test_every_configured_task_is_registered(key: RouteKey) -> None:
+    configuration = load_route_file(key.name, "route.json", key.major)
     nodes = configuration["nodes"]
     assert isinstance(nodes, list)
     required_tasks: set[str] = set()
@@ -131,18 +147,19 @@ def test_every_configured_task_is_registered(route_name: str) -> None:
             assert isinstance(task_name, str)
             required_tasks.add(task_name)
 
-    assert set(tasks[route_name]) == required_tasks
+    assert set(tasks[key]) == required_tasks
 
 
 def test_schema_loader_discovers_schema_by_route_directory(tmp_path: Path) -> None:
     schema = {"type": "object", "required": ["message"]}
     route_directory = tmp_path / "messages"
     route_directory.mkdir()
+    (route_directory / "route.json").write_text("{}", encoding="utf-8")
     (route_directory / "schema.json").write_text(json.dumps(schema), encoding="utf-8")
 
     schemas = Schemas(root=tmp_path)
 
-    assert schemas.loaded == {"messages": schema}
+    assert schemas.loaded == {RouteKey("messages", 1): schema}
 
 
 def test_example_1_runs_fraud_and_policy_checks() -> None:
@@ -151,14 +168,24 @@ def test_example_1_runs_fraud_and_policy_checks() -> None:
     assert result == {
         "fraud": {
             "transaction-id": "txn-123",
-            "risk-score": 0.6,
-            "requires-review": True,
+            "risk-score": 0.4,
+            "requires-review": False,
         },
         "policy": {
             "transaction-id": "txn-123",
             "approved": True,
             "reason": "accepted",
         },
+    }
+
+
+def test_example_1_v1_remains_available_explicitly() -> None:
+    result = asyncio.run(route("example-1", VALID_REQUESTS["example-1"], 1))
+
+    assert result["fraud"] == {
+        "transaction-id": "txn-123",
+        "risk-score": 0.6,
+        "requires-review": True,
     }
 
 
@@ -173,7 +200,7 @@ def test_example_2_api_request_is_scored_and_approved(
 ) -> None:
     configured_router = Router(
         load_route_file("example-2", "route.json"),
-        tasks["example-2"],
+        tasks[RouteKey("example-2", 1)],
         seed=seed,
     )
 
@@ -229,9 +256,9 @@ def test_specified_endpoint_rejects_invalid_request_before_execution(endpoint) -
         asyncio.run(endpoint("example-2", payload))
 
 
-@pytest.mark.parametrize("route_name", VALID_REQUESTS)
-def test_all_registered_tasks_are_healthy(route_name: str) -> None:
-    results = asyncio.run(manager[route_name].healthcheck())
+@pytest.mark.parametrize("key", CONFIGURED_ROUTE_KEYS)
+def test_all_registered_tasks_are_healthy(key: RouteKey) -> None:
+    results = asyncio.run(manager[key].healthcheck())
 
     assert results
     assert all(results.values())

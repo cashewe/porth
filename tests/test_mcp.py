@@ -60,7 +60,7 @@ def test_list_available_routes_includes_each_route_schema() -> None:
         "result": [
             {
                 "name": route_name,
-                "input_schema": manager.schemas.get(route_name),
+                "input_schema": manager.schema(route_name),
             }
             for route_name in sorted(manager.keys())
         ]

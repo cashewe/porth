@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from porth.config_manager.route_loader import Routes
+from porth.config_manager.version_handler import RouteKey
 
 
 def test_default_root_resolves_to_project_routes_directory():
@@ -24,8 +25,8 @@ def test_load_finds_route_json_files_in_child_directories(tmp_path):
     routes.load()
 
     assert routes.loaded == {
-        "alpha": {"name": "alpha"},
-        "beta": {"name": "beta"},
+        RouteKey("alpha", 1): {"name": "alpha"},
+        RouteKey("beta", 1): {"name": "beta"},
     }
 
 
@@ -40,4 +41,4 @@ def test_load_ignores_non_route_json_files_in_directory(tmp_path):
     routes = Routes(root=str(tmp_path))
     routes.load()
 
-    assert routes.loaded == {"alpha": {"name": "alpha"}}
+    assert routes.loaded == {RouteKey("alpha", 1): {"name": "alpha"}}

@@ -37,7 +37,7 @@ def mount_mcp(app: FastAPI, *, path: str = MCP_MOUNT_PATH) -> FastMCP:
         return [
             AvailableRoute(
                 name=route_name,
-                input_schema=manager.schemas.get(route_name),
+                input_schema=manager.schema(route_name),
             )
             for route_name in sorted(manager.keys())
         ]

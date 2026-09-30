@@ -20,7 +20,6 @@ nice to haves:
 up next we need:
 - write second docker container for wrapping the config
 - write some metrics
-- *write versioning system*
 - *add config singleton to core codebase*
 - write pipeline for deploying core behaviour to dockerhub
 - write helm for config files

@@ -4,6 +4,7 @@ from pathlib import Path
 import structlog
 
 from ._loader import Loader
+from .version_handler import VersionHandler
 
 logger = structlog.get_logger(__name__)
 
@@ -14,17 +15,19 @@ class Tasks(Loader):
         root_path = Path(self.root)
 
         logger.info(f"discovering configs in {root_path}...")
-        for child in sorted(root_path.iterdir()):
-            if not child.is_dir():
-                continue
-
-            tasks_path = child / "tasks.py"
+        self.loaded = {}
+        for key, directory in VersionHandler.discover(root_path).items():
+            tasks_path = directory / "tasks.py"
             if not tasks_path.exists():
-                logger.debug(f"directory {child} contains no tasks!")
+                logger.debug(
+                    "route contains no tasks",
+                    route=key.name,
+                    version=key.major,
+                )
                 continue  # some users may just have no tasks?
 
             spec = importlib.util.spec_from_file_location(
-                f"porth_tasks_{child.name}",
+                f"porth_tasks_{key.name.replace('-', '_')}_v{key.major}",
                 tasks_path,
             )
             if spec is None or spec.loader is None:
@@ -32,8 +35,8 @@ class Tasks(Loader):
 
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            self.loaded[child.name] = module.tasks
-            logger.debug(f"successfully loaded tasks for {child}")
+            self.loaded[key] = module.tasks
+            logger.debug("loaded tasks", route=key.name, version=key.major)
 
     def info(self):
         return {key: list(value.keys()) for key, value in self.loaded.items()}

@@ -4,6 +4,7 @@ from pathlib import Path
 import structlog
 
 from ._loader import Loader
+from .version_handler import VersionHandler
 
 logger = structlog.get_logger(__name__)
 
@@ -19,12 +20,15 @@ class Schemas(Loader):
 
         self.loaded = {}
 
-        for file in sorted(root_path.rglob("schema.json")):
+        for key, directory in VersionHandler.discover(root_path).items():
+            file = directory / "schema.json"
+            if not file.exists():
+                continue
             with file.open("r", encoding="utf-8") as f:
                 route_data = json.load(f)
 
-            self.loaded[file.parent.name] = route_data
-            logger.debug(f"loaded schema for {file.parent.name}!")
+            self.loaded[key] = route_data
+            logger.debug("loaded schema", route=key.name, version=key.major)
 
     def info(self):
         return list(self.loaded)
