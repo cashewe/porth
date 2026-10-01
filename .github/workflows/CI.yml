@@ -28,12 +28,13 @@ jobs:
         uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Sync project dependencies
-        run: uv sync --all-groups --frozen
+        run: uv sync --project porth --all-groups --frozen
 
       - name: Run dependency audit
-        run: uv audit --output-format sarif > uv-audit-results.sarif
+        run: uv audit --project porth --output-format sarif > uv-audit-results.sarif
 
       - name: Upload uv audit results to GitHub code scanning
         if: always()
@@ -42,16 +43,16 @@ jobs:
           sarif_file: uv-audit-results.sarif
 
       - name: Check formatting with ruff
-        run: uv run ruff format --check .
+        run: uv run --project porth ruff format --check .
 
       - name: Lint with ruff
-        run: uv run ruff check . --output-format github
+        run: uv run --project porth ruff check . --output-format github
 
       - name: Type check with ty
-        run: uv run ty check . --output-format github
+        run: uv run --project porth ty check . --output-format github
 
       - name: Run pytest with JUnit output
-        run: uv run pytest --junitxml=pytest.xml
+        run: uv run --project porth pytest --junitxml=pytest.xml
 
       - name: Publish pytest report
         if: always()

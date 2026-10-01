@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 from ..config_manager import manager
 from ..settings import settings
@@ -16,7 +17,7 @@ def healthz():
 def readyz():
     """Is the app ready?"""
     if len(manager) == 0:
-        return {"status": "not ready"}
+        return JSONResponse(content={"status": "not ready"}, status_code=503)
     return {"status": "ready"}
 
 
@@ -26,5 +27,9 @@ def info():
     return {
         "name": settings.service_name,
         "version": settings.service_version,
+        "api_version": settings.service_version,
+        "api_revision": settings.service_revision,
+        "routes_version": settings.routes_version,
+        "routes_revision": settings.routes_revision,
         "loaded": manager.info(),
     }

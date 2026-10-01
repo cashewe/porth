@@ -1,8 +1,11 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from porth.config_manager.route_loader import Routes
 from porth.config_manager.version_handler import RouteKey
+from porth.settings import settings
 
 
 def test_default_root_resolves_to_project_routes_directory():
@@ -11,6 +14,17 @@ def test_default_root_resolves_to_project_routes_directory():
     assert Path(routes.root).is_absolute()
     assert Path(routes.root).name == "routes"
     assert Path(routes.root).exists()
+
+
+def test_default_root_uses_configured_routes_directory(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(settings, "routes_dir", tmp_path)
+
+    routes = Routes()
+
+    assert Path(routes.root) == tmp_path
 
 
 def test_load_finds_route_json_files_in_child_directories(tmp_path):

@@ -2,12 +2,14 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
+from ..settings import settings
+
 
 class Loader(ABC):
-    def __init__(self, root: str | Path = "routes"):
-        root_path = Path(root)
+    def __init__(self, root: str | Path | None = None):
+        root_path = Path(root) if root is not None else settings.routes_dir
         if not root_path.is_absolute():
-            root_path = Path(__file__).resolve().parents[3] / root_path
+            root_path = Path.cwd() / root_path
 
         self.root = str(root_path)
         self.loaded = {}

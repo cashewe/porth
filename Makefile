@@ -1,16 +1,16 @@
 .PHONY: quality test run observability-up observability-down observability-logs
 
 quality:
-	ruff check . --fix
-	ruff format .
-	ty check .
-	uv audit
+	uv run --project porth ruff check . --fix
+	uv run --project porth ruff format .
+	uv run --project porth ty check .
+	uv audit --project porth
 
 test:
-	uv run pytest .
+	uv run --project porth pytest .
 
 run:
-	uv run fastapi dev src/porth/api.py --reload
+	uv run --project porth fastapi dev porth/src/porth/api.py --reload
 
 observability-up:
 	docker compose up -d jaeger

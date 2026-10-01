@@ -1,0 +1,11 @@
+[project]
+name = "porth-routes"
+version = "0.1.0"
+description = "Route definitions and task dependencies for Porth"
+requires-python = ">=3.14"
+dependencies = [
+    "camau==1.2.0",
+]
+
+[tool.uv]
+package = false

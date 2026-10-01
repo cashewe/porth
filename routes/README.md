@@ -9,6 +9,19 @@ each route will need:
 - a `tasks.py` file, defining a dictionary, 'tasks', containing async callers that map to routing tasks names
 - [OPTIONAL] a `schema.json` file, defining the schema for route to validate incoming messages with.
 
+## Dependencies
+
+The routes directory is its own uv project. Add packages used by `tasks.py` from
+the repository root with:
+
+```shell
+uv add --project routes <package>
+```
+
+Commit both `routes/pyproject.toml` and `routes/uv.lock`. The routes image syncs
+that lock into the API image's existing virtual environment. `--inexact` keeps
+the API's installed packages while uv adds the locked route dependencies.
+
 ## Versions
 
 A route with no version directories is implicitly version 1:

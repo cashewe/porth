@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -20,6 +22,26 @@ class PorthSettings(BaseSettings):
         default="0.1.0",
         validation_alias="SERVICE_VERSION",
         description="Deployed application version reported in telemetry resources.",
+    )
+    service_revision: str = Field(
+        default="unknown",
+        validation_alias="SERVICE_REVISION",
+        description="Source revision used to build the deployed application.",
+    )
+    routes_version: str = Field(
+        default="development",
+        validation_alias="ROUTES_VERSION",
+        description="Version of the deployed route bundle.",
+    )
+    routes_revision: str = Field(
+        default="unknown",
+        validation_alias="ROUTES_REVISION",
+        description="Source revision used to build the deployed route bundle.",
+    )
+    routes_dir: Path = Field(
+        default=Path("routes"),
+        validation_alias="PORTH_ROUTES_DIR",
+        description="Directory containing route definitions and tasks.",
     )
     environment: str = Field(
         default="local",
